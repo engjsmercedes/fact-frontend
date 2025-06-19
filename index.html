@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="factApp()" x-init="fetchFacts()">
+<html lang="en" x-data="factApp()" x-init="loadFakeFacts()">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,12 +13,12 @@
 
     <!-- Search Bar -->
     <div>
-      <input type="text" class="w-full p-2 border" placeholder="Search facts..." x-model="search" @input.debounce.500ms="fetchFacts">
+      <input type="text" class="w-full p-2 border rounded" placeholder="Search facts..." x-model="search" @input.debounce.500ms="filterFacts">
     </div>
 
     <!-- Facts Feed -->
     <div class="space-y-4">
-      <template x-for="fact in facts" :key="fact.id">
+      <template x-for="fact in filteredFacts" :key="fact.id">
         <div class="bg-white p-4 shadow rounded transition-transform duration-300 hover:scale-[1.01] cursor-pointer">
           <p><strong>Who:</strong> <span x-text="fact.who"></span></p>
           <p><strong>What:</strong> <span x-text="fact.what"></span></p>
@@ -35,15 +35,45 @@
       return {
         search: '',
         facts: [],
+        filteredFacts: [],
 
-        async fetchFacts() {
-          const url = this.search
-            ? `https://xyz.supabase.co/rest/v1/facts?or=(who,what,when,where,why).ilike.*${this.search}*&order=created_at.desc`
-            : `https://xyz.supabase.co/rest/v1/facts?order=created_at.desc&limit=10`;
-          const res = await fetch(url, {
-            headers: { 'apikey': 'YOUR_PUBLIC_SUPABASE_KEY' }
-          });
-          this.facts = await res.json();
+        loadFakeFacts() {
+          this.facts = [
+            {
+              id: 1,
+              who: "President Smith",
+              what: "signed a $2B education bill",
+              when: "June 18, 2025",
+              where: "Washington D.C.",
+              why: "to improve rural school funding"
+            },
+            {
+              id: 2,
+              who: "UN Delegates",
+              what: "reached a climate accord",
+              when: "July 3, 2025",
+              where: "Geneva",
+              why: "to reduce global emissions by 2030"
+            },
+            {
+              id: 3,
+              who: "Tesla",
+              what: "launched a new battery plant",
+              when: "May 29, 2025",
+              where: "Austin, TX",
+              why: "to increase EV production"
+            }
+          ];
+          this.filteredFacts = this.facts;
+        },
+
+        filterFacts() {
+          const term = this.search.toLowerCase();
+          this.filteredFacts = this.facts.filter(f =>
+            Object.values(f).some(val =>
+              String(val).toLowerCase().includes(term)
+            )
+          );
         }
       }
     }
