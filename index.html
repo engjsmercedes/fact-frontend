@@ -11,17 +11,6 @@
   <div class="max-w-3xl mx-auto p-6 space-y-6">
     <h1 class="text-3xl font-bold">🧠 Fact Engine</h1>
 
-    <!-- Submission Form -->
-    <div class="bg-white p-4 shadow rounded">
-      <h2 class="text-xl font-semibold mb-2">Submit News for Fact Extraction</h2>
-      <textarea class="w-full border p-2 mb-2" rows="5" x-model="submission"></textarea>
-      <button @click="submitContent" class="bg-blue-600 text-white px-4 py-2 rounded" :disabled="loading">
-        <span x-show="!loading">Submit</span>
-        <span x-show="loading">Submitting…</span>
-      </button>
-      <p class="text-green-600 mt-2" x-show="success">Submitted successfully!</p>
-    </div>
-
     <!-- Search Bar -->
     <div>
       <input type="text" class="w-full p-2 border" placeholder="Search facts..." x-model="search" @input.debounce.500ms="fetchFacts">
@@ -30,7 +19,7 @@
     <!-- Facts Feed -->
     <div class="space-y-4">
       <template x-for="fact in facts" :key="fact.id">
-        <div class="bg-white p-4 shadow rounded">
+        <div class="bg-white p-4 shadow rounded transition-transform duration-300 hover:scale-[1.01] cursor-pointer">
           <p><strong>Who:</strong> <span x-text="fact.who"></span></p>
           <p><strong>What:</strong> <span x-text="fact.what"></span></p>
           <p><strong>When:</strong> <span x-text="fact.when"></span></p>
@@ -44,11 +33,8 @@
   <script>
     function factApp() {
       return {
-        submission: '',
         search: '',
         facts: [],
-        loading: false,
-        success: false,
 
         async fetchFacts() {
           const url = this.search
@@ -58,20 +44,6 @@
             headers: { 'apikey': 'YOUR_PUBLIC_SUPABASE_KEY' }
           });
           this.facts = await res.json();
-        },
-
-        async submitContent() {
-          this.loading = true;
-          this.success = false;
-          await fetch('https://hook.integromat.com/xxxxxx', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: this.submission })
-          });
-          this.loading = false;
-          this.success = true;
-          this.submission = '';
-          this.fetchFacts();
         }
       }
     }
