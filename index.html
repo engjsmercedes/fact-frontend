@@ -1,82 +1,38 @@
-<!DOCTYPE html>
-<html lang="en" x-data="factApp()" x-init="loadFakeFacts()">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fact Engine</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@latest/dist/tailwind-ui.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-3xl mx-auto p-6 space-y-6">
-    <h1 class="text-3xl font-bold">🧠 Fact Engine</h1>
+<!-- Search Bar -->
+<div>
+  <input type="text" class="w-full p-2 border" placeholder="Search facts..." x-model="search" @input.debounce.500ms="fetchFacts">
+</div>
 
-    <!-- Search Bar -->
+<!-- Facts Feed -->
+<div class="space-y-4">
+  <template x-for="(fact, index) in paginatedFacts" :key="index">
     <div>
-      <input type="text" class="w-full p-2 border rounded" placeholder="Search facts..." x-model="search" @input.debounce.500ms="filterFacts">
-    </div>
-
-    <!-- Facts Feed -->
-    <div class="space-y-4">
-      <template x-for="fact in filteredFacts" :key="fact.id">
-        <div class="bg-white p-4 shadow rounded transition-transform duration-300 hover:scale-[1.01] cursor-pointer">
-          <p><strong>Who:</strong> <span x-text="fact.who"></span></p>
-          <p><strong>What:</strong> <span x-text="fact.what"></span></p>
-          <p><strong>When:</strong> <span x-text="fact.when"></span></p>
-          <p><strong>Where:</strong> <span x-text="fact.where"></span></p>
-          <p><strong>Why:</strong> <span x-text="fact.why"></span></p>
-        </div>
+      <!-- Fake Ad every 2 cards -->
+      <template x-if="index % 2 === 1">
+        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 p-4 rounded shadow">Sponsored Ad Placeholder</div>
       </template>
+
+      <div class="bg-white p-4 shadow rounded flex space-x-4">
+        <img :src="fact.image" alt="news" class="w-24 h-24 object-cover rounded">
+        <div>
+          <h2 class="text-xl font-semibold mb-1" x-text="fact.headline"></h2>
+          <p class="text-sm"><strong>Who:</strong> <span x-text="fact.who"></span></p>
+          <p class="text-sm"><strong>What:</strong> <span x-text="fact.what"></span></p>
+          <p class="text-sm"><strong>When:</strong> <span x-text="fact.when"></span></p>
+          <p class="text-sm"><strong>Where:</strong> <span x-text="fact.where"></span></p>
+          <p class="text-sm"><strong>Why:</strong> <span x-text="fact.why"></span></p>
+          <p class="text-xs mt-2 text-gray-500">
+            Source: <span x-text="fact.source"></span> | Score: <span x-text="fact.score"></span>/100
+          </p>
+        </div>
+      </div>
     </div>
+  </template>
+
+  <!-- Pagination Controls -->
+  <div class="flex justify-between items-center mt-6">
+    <button class="px-4 py-2 bg-gray-200 rounded" @click="prevPage" :disabled="page === 1">Previous</button>
+    <span>Page <span x-text="page"></span></span>
+    <button class="px-4 py-2 bg-gray-200 rounded" @click="nextPage" :disabled="(page * limit) >= facts.length">Next</button>
   </div>
-
-  <script>
-    function factApp() {
-      return {
-        search: '',
-        facts: [],
-        filteredFacts: [],
-
-        loadFakeFacts() {
-          this.facts = [
-            {
-              id: 1,
-              who: "President Smith",
-              what: "signed a $2B education bill",
-              when: "June 18, 2025",
-              where: "Washington D.C.",
-              why: "to improve rural school funding"
-            },
-            {
-              id: 2,
-              who: "UN Delegates",
-              what: "reached a climate accord",
-              when: "July 3, 2025",
-              where: "Geneva",
-              why: "to reduce global emissions by 2030"
-            },
-            {
-              id: 3,
-              who: "Tesla",
-              what: "launched a new battery plant",
-              when: "May 29, 2025",
-              where: "Austin, TX",
-              why: "to increase EV production"
-            }
-          ];
-          this.filteredFacts = this.facts;
-        },
-
-        filterFacts() {
-          const term = this.search.toLowerCase();
-          this.filteredFacts = this.facts.filter(f =>
-            Object.values(f).some(val =>
-              String(val).toLowerCase().includes(term)
-            )
-          );
-        }
-      }
-    }
-  </script>
-</body>
-</html>
+</div>
